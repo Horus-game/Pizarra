@@ -239,6 +239,7 @@ async function fetchData() {
    STATS
 ══════════════════════════════════════════════ */
 function updateStats() {
+  const nm = nowMin();
   if (activeTab === "ALL") {
     const halconesSet = new Set();
     COMPANIAS.forEach(id => {
@@ -252,9 +253,11 @@ function updateStats() {
   } else {
     const d = data[activeTab];
     if (!d) return;
+    const opsPend  = (d.operativos || []).filter(r => toMin(cleanHora(r.hora)) > nm).length;
+    const fuelPend = (d.recargas   || []).filter(r => toMin(cleanHora(r.hora)) > nm).length;
     document.getElementById("s-mov").textContent  = (d.moviles || []).length;
-    document.getElementById("s-ops").textContent  = (d.operativos   || []).length;
-    document.getElementById("s-fuel").textContent = (d.recargas     || []).length;
+    document.getElementById("s-ops").textContent  = opsPend;
+    document.getElementById("s-fuel").textContent = fuelPend;
   }
 }
 
@@ -320,18 +323,18 @@ function getAlerta(halcon, operativos, recargas) {
     if (ev.halcon !== halcon) continue;
     const em   = toMin(ev.hora);
     const diff = em - nm;
-    if (diff === 0)                    return { cls:"row-ops-now",  tagCls:"tag-ops-now",   tagTxt:"▶ EN OPERATIVO · " + ev.lugar };
-    if (diff > 0 && diff <= PROX_MIN)  return { cls:"row-ops-prox", tagCls:"tag-ops-prox",  tagTxt:"⏱ OP. EN " + diff + " min · " + ev.lugar };
-    if (diff > PROX_MIN && diff <= 60) return { cls:"row-ops-prox", tagCls:"tag-ops-prox",  tagTxt:"📍 OP. " + ev.hora + " · " + ev.lugar };
+    if (diff === 0)                    return { cls:"row-ops-now",  tagCls:"tag-ops-now",   tagTxt:"▶ EN OPERATIVO" };
+    if (diff > 0 && diff <= PROX_MIN)  return { cls:"row-ops-prox", tagCls:"tag-ops-prox",  tagTxt:"⏱ OP. EN " + diff + " min" };
+    if (diff > PROX_MIN && diff <= 60) return { cls:"row-ops-prox", tagCls:"tag-ops-prox",  tagTxt:"📍 OP. " + cleanHora(ev.hora) };
   }
 
   for (const ev of (recargas || [])) {
     if (ev.halcon !== halcon) continue;
     const em   = toMin(ev.hora);
     const diff = em - nm;
-    if (diff === 0)                    return { cls:"row-fuel-now",  tagCls:"tag-fuel-now",  tagTxt:"⛽ EN RECARGA · " + ev.lugar };
-    if (diff > 0 && diff <= PROX_MIN)  return { cls:"row-fuel-prox", tagCls:"tag-fuel-prox", tagTxt:"⏱ RECARGA EN " + diff + " min · " + ev.lugar };
-    if (diff > PROX_MIN && diff <= 60) return { cls:"row-fuel-prox", tagCls:"tag-fuel-prox", tagTxt:"⛽ RECARGA " + ev.hora + " · " + ev.lugar };
+    if (diff === 0)                    return { cls:"row-fuel-now",  tagCls:"tag-fuel-now",  tagTxt:"⛽ EN RECARGA" };
+    if (diff > 0 && diff <= PROX_MIN)  return { cls:"row-fuel-prox", tagCls:"tag-fuel-prox", tagTxt:"⏱ RECARGA EN " + diff + " min" };
+    if (diff > PROX_MIN && diff <= 60) return { cls:"row-fuel-prox", tagCls:"tag-fuel-prox", tagTxt:"⛽ RECARGA " + cleanHora(ev.hora) };
   }
 
   return null;
