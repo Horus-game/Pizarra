@@ -244,7 +244,7 @@ function updateStats() {
     COMPANIAS.forEach(id => {
       const d = data[id];
       if (!d) return;
-      (d.distribucion || []).forEach(r => halconesSet.add(r.halcon));
+      (d.moviles || []).forEach(r => halconesSet.add(r.halcon));
     });
     document.getElementById("s-mov").textContent  = halconesSet.size;
     document.getElementById("s-ops").textContent  = "—";
@@ -252,7 +252,7 @@ function updateStats() {
   } else {
     const d = data[activeTab];
     if (!d) return;
-    document.getElementById("s-mov").textContent  = (d.distribucion || []).length;
+    document.getElementById("s-mov").textContent  = (d.moviles || []).length;
     document.getElementById("s-ops").textContent  = (d.operativos   || []).length;
     document.getElementById("s-fuel").textContent = (d.recargas     || []).length;
   }
@@ -284,7 +284,7 @@ function render() {
   wrap.className = "grid" + (cols.length === 1 ? " solo" : "");
   wrap.innerHTML = "";
   cols.forEach((id, i) => {
-    const card = mkCard(id, data[id] || { distribucion:[], operativos:[], recargas:[] });
+    const card = mkCard(id, data[id] || { moviles:[], operativos:[], recargas:[] });
     card.style.animationDelay = (i * 60) + "ms";
     wrap.appendChild(card);
   });
@@ -341,7 +341,7 @@ function getAlerta(halcon, operativos, recargas) {
    CONSTRUCCIÓN DE CARD
 ══════════════════════════════════════════════ */
 function mkCard(id, d) {
-  const dist = d.distribucion || [];
+  const dist = d.moviles || [];
   const ops  = d.operativos   || [];
   const fuel = d.recargas     || [];
 
@@ -356,18 +356,28 @@ function mkCard(id, d) {
   }).join("");
 
   const opsRows = ops.map(function(r) {
-    return '<tr>'
+    const nm = nowMin(), em = toMin(cleanHora(r.hora)), diff = em - nm;
+    var rowCls = '', tagHtml = '';
+    if (diff === 0)                   { rowCls = 'row-ops-now';  tagHtml = '<span class="tag tag-ops-now">▶ EN CURSO</span>'; }
+    else if (diff > 0 && diff <= 30) { rowCls = 'row-ops-prox'; tagHtml = '<span class="tag tag-ops-prox">⏱ EN ' + diff + ' min</span>'; }
+    else if (diff > 30 && diff <= 60){ rowCls = 'row-ops-prox'; tagHtml = '<span class="tag tag-ops-prox">📍 ' + cleanHora(r.hora) + '</span>'; }
+    return '<tr class="' + rowCls + '">'
       + '<td style="width:54px"><span class="hora">' + esc(cleanHora(r.hora)) + '</span></td>'
       + '<td style="width:54px"><span class="bh">' + esc(r.halcon) + '</span></td>'
-      + '<td><span class="sector">' + esc(r.lugar) + '</span></td>'
+      + '<td><span class="sector">' + esc(r.lugar) + '</span>' + tagHtml + '</td>'
       + '</tr>';
   }).join("");
 
   const fuelRows = fuel.map(function(r) {
-    return '<tr>'
+    const nm = nowMin(), em = toMin(cleanHora(r.hora)), diff = em - nm;
+    var rowCls = '', tagHtml = '';
+    if (diff === 0)                   { rowCls = 'row-fuel-now';  tagHtml = '<span class="tag tag-fuel-now">⛽ EN CURSO</span>'; }
+    else if (diff > 0 && diff <= 30) { rowCls = 'row-fuel-prox'; tagHtml = '<span class="tag tag-fuel-prox">⏱ EN ' + diff + ' min</span>'; }
+    else if (diff > 30 && diff <= 60){ rowCls = 'row-fuel-prox'; tagHtml = '<span class="tag tag-fuel-prox">⛽ ' + cleanHora(r.hora) + '</span>'; }
+    return '<tr class="' + rowCls + '">'
       + '<td style="width:54px"><span class="hora">' + esc(cleanHora(r.hora)) + '</span></td>'
       + '<td style="width:54px"><span class="bh">' + esc(r.halcon) + '</span></td>'
-      + '<td><span class="sector">' + esc(r.lugar) + '</span></td>'
+      + '<td><span class="sector">' + esc(r.lugar) + '</span>' + tagHtml + '</td>'
       + '</tr>';
   }).join("");
 
