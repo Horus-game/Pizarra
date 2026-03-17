@@ -126,7 +126,7 @@ body { font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; padding: 
 <!-- ══════════════════ CONFIGURACIÓN ══════════════════════
   Solo modificá la URL si redesplegás el Apps Script       -->
 <script>
-  const API_URL       = "https://script.google.com/macros/s/AKfycbyKMOA_wCFkiTzuK9ix-2ikVZiFmsWvjnmOOe5_oBx57HGSTKw1op6QgSp1OtLEaWzkKg/exec";
+  const API_URL       = "https://script.google.com/macros/s/AKfycbxP4uKSNapx4LODjL2MocDuXWl55AvFCI-X7fNAWS-7jco-3dSzYpKtLRqa0ktGNRY4MA/exec";
   const POLL_MS       = 30000;   // refresco de datos (ms)
   const COMPANIAS     = ["C1","C2","C3","C4"];
   const PROX_MIN      = 30;      // minutos antes para mostrar alerta "próximo"
@@ -294,8 +294,17 @@ function render() {
    LÓGICA DE ALERTAS HORARIAS
    Compara la hora actual con cada evento
 ══════════════════════════════════════════════ */
+function cleanHora(t) {
+  const s = String(t || "");
+  // Si viene como fecha completa de JS, extraer HH:MM
+  if (s.includes("GMT")) {
+    const m = s.match(/(\d{2}):(\d{2}):\d{2} GMT/);
+    if (m) return m[1] + ":" + m[2];
+  }
+  return s;
+}
 function toMin(t) {
-  const parts = String(t || "").split(":");
+  const parts = cleanHora(t).split(":");
   return parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0);
 }
 function nowMin() {
@@ -351,14 +360,14 @@ function mkCard(id, d) {
 
   // Filas de operativos
   const opsRows = ops.map(r => `<tr>
-    <td style="width:54px"><span class="hora">${esc(r.hora)}</span></td>
+    <td style="width:54px"><span class="hora">${esc(cleanHora(r.hora))}</span></td>
     <td style="width:54px"><span class="bh">${esc(r.halcon)}</span></td>
     <td><span class="sector">${esc(r.lugar)}</span></td>
   </tr>`).join("");
 
   // Filas de recargas
   const fuelRows = fuel.map(r => `<tr>
-    <td style="width:54px"><span class="hora">${esc(r.hora)}</span></td>
+    <td style="width:54px"><span class="hora">${esc(cleanHora(r.hora))}</span></td>
     <td style="width:54px"><span class="bh">${esc(r.halcon)}</span></td>
     <td><span class="sector">${esc(r.lugar)}</span></td>
   </tr>`).join("");
