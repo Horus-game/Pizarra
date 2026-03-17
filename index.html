@@ -374,6 +374,21 @@ function mkCard(id, d) {
 
   const card = document.createElement("div");
   card.className = "cia";
+
+  const opsHtml = activeTab !== "ALL" ? `
+    <div class="sec ops">
+      <div class="sec-hdr"><span class="sec-ico">📍</span>Operativos programados</div>
+      ${ops.length
+        ? \`<table class="tbl"><thead><tr><th style="width:54px">Hora</th><th style="width:54px">Halcón</th><th>Lugar</th></tr></thead><tbody>\${opsRows}</tbody></table>\`
+        : \`<div class="empty">Sin operativos programados</div>\`}
+    </div>
+    <div class="sec fuel">
+      <div class="sec-hdr"><span class="sec-ico">⛽</span>Recargas</div>
+      ${fuel.length
+        ? \`<table class="tbl"><thead><tr><th style="width:54px">Hora</th><th style="width:54px">Halcón</th><th>Lugar</th></tr></thead><tbody>\${fuelRows}</tbody></table>\`
+        : \`<div class="empty">Sin recargas programadas</div>\`}
+    </div>` : "";
+
   card.innerHTML = `
     <div class="cia-hdr">
       <div class="cia-num">${id}</div>
@@ -383,28 +398,13 @@ function mkCard(id, d) {
       </div>
       <div class="cia-pill">${dist.length} móviles</div>
     </div>
-
     <div class="sec dist">
       <div class="sec-hdr"><span class="sec-ico">🚓</span>Distribución operativa</div>
       ${dist.length
-        ? `<table class="tbl"><thead><tr><th style="width:52px">Halcón</th><th>Sector</th><th style="width:36%">Agentes</th></tr></thead><tbody>${distRows}</tbody></table>`
-        : `<div class="empty">Sin unidades asignadas</div>`}
+        ? \`<table class="tbl"><thead><tr><th style="width:52px">Halcón</th><th>Sector</th><th style="width:36%">Agentes</th></tr></thead><tbody>\${distRows}</tbody></table>\`
+        : \`<div class="empty">Sin unidades asignadas</div>\`}
     </div>
-
-    ${activeTab !== "ALL" ? `
-    <div class="sec ops">
-      <div class="sec-hdr"><span class="sec-ico">📍</span>Operativos programados</div>
-      ${ops.length
-        ? \`<table class="tbl"><thead><tr><th style="width:54px">Hora</th><th style="width:54px">Halcón</th><th>Lugar</th></tr></thead><tbody>${opsRows}</tbody></table>\`
-        : \`<div class="empty">Sin operativos programados</div>\`}
-    </div>
-
-    <div class="sec fuel">
-      <div class="sec-hdr"><span class="sec-ico">⛽</span>Recargas</div>
-      ${fuel.length
-        ? \`<table class="tbl"><thead><tr><th style="width:54px">Hora</th><th style="width:54px">Halcón</th><th>Lugar</th></tr></thead><tbody>${fuelRows}</tbody></table>\`
-        : \`<div class="empty">Sin recargas programadas</div>\`}
-    </div>` : ''}\`;
+    \${opsHtml}`;
 
   return card;
 }
